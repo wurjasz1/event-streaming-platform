@@ -15,6 +15,8 @@ def create_spark_session() -> SparkSession:
         )
         .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension")
         .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog")
+        .config("spark.driver.memory","1g")
+        .config("spark.sql.shuffle.partitions","4")
         .getOrCreate()
     )
 
