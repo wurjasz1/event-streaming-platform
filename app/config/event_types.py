@@ -1,0 +1,11 @@
+PLAY = "play"
+PAUSE = "pause"
+RESUME = "resume"
+COMPLETED = "completed"
+ABANDONED = "abandoned"
+
+EVENT_TYPES = [
+    PLAY, PAUSE, RESUME, COMPLETED, ABANDONED
+]
+
+TERMIANL_EVENTS = [COMPLETED, ABANDONED]

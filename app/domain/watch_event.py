@@ -18,13 +18,10 @@ class WatchEvent:
     device_type: Optional[str] = None
     platform: Optional[str] = None
     network_type: Optional[str] = None
-
     pause_reason: Optional[str] = None
-    resume_source: Optional[str] = None
-
+    resume_reason: Optional[str] = None
     completion_percent: Optional[int] = None
     watch_duration_sec: Optional[int] = None
-
     abandoned_reason: Optional[str] = None
 
     #method to convert object to dict for Kafka
@@ -43,7 +40,7 @@ class WatchEvent:
             "platform": self.platform,
             "network_type": self.network_type,
             "pause_reason": self.pause_reason,
-            "resume_source": self.resume_source,
+            "resume_reason": self.resume_reason,
             "watch_duration_sec": self.watch_duration_sec,
             "abandoned_reason": self.abandoned_reason
 
