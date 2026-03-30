@@ -11,5 +11,8 @@ __pycache__/
 #data
 data/
 
+#checkpoints
+checkpoints/
+
 #logs
 &.log
