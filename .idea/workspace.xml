@@ -103,11 +103,25 @@
       <workItem from="1774509406570" duration="14988000" />
       <workItem from="1774773718308" duration="20229000" />
       <workItem from="1774816558019" duration="1194000" />
+      <workItem from="1774855356119" duration="418000" />
     </task>
+    <task id="LOCAL-00001" summary="feat: initial streaming pipeline with kafka, bronze ingestion and event generator&#10;&#10;- added kafka + docker setup&#10;- implemented event generator with delay and duplicates&#10;- created bronze streaming ingestion&#10;- added basic event schema and flow simulation">
+      <option name="closed" value="true" />
+      <created>1774855772445</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1774855772445</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="feat: initial streaming pipeline with kafka, bronze ingestion and event generator&#10;&#10;- added kafka + docker setup&#10;- implemented event generator with delay and duplicates&#10;- created bronze streaming ingestion&#10;- added basic event schema and flow simulation" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat: initial streaming pipeline with kafka, bronze ingestion and event generator&#10;&#10;- added kafka + docker setup&#10;- implemented event generator with delay and duplicates&#10;- created bronze streaming ingestion&#10;- added basic event schema and flow simulation" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/event_streaming_platform$deque.coverage" NAME="deque Coverage Results" MODIFIED="1774512157248" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
