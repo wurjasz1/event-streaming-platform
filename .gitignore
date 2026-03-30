@@ -14,5 +14,8 @@ data/
 #checkpoints
 checkpoints/
 
+#manual testing
+manual-testing/
+
 #logs
 &.log
