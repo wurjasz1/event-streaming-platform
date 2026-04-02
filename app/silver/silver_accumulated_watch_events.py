@@ -45,7 +45,8 @@ def deduplicate_batch(df):
     window = Window.partitionBy("event_id").orderBy(
             F.desc_nulls_last("event_time"),
             F.desc_nulls_last("event_version"),
-            F.desc_nulls_last("event_header_reemission")
+            F.desc_nulls_last("event_header_reemission"),
+            F.desc_nulls_last("ingest_ts")
     )
     return (
         df
