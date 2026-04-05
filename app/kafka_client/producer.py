@@ -12,8 +12,8 @@ class KafkaEventProducer:
     def __enter__(self):
         self.producer = Producer(
             {
-                'bootstrap_servers': self.bootstrap_servers,
-                "client_id": "event-streaming-platform-producer",
+                'bootstrap.servers': self.bootstrap_servers,
+                "client.id": "event-streaming-platform-producer",
                 "acks": "all"
             }
         )
@@ -69,7 +69,7 @@ class KafkaEventProducer:
                 callback=self._delivery_callback
             )
 
-            self.producer.poll(8)
+            self.producer.poll(0)
 
         except BufferError as e:
             logger.exception(
@@ -77,7 +77,16 @@ class KafkaEventProducer:
                 topic,
                 key
             )
-            raise
+            self.producer.poll(1)
+
+            self.producer.produce(
+                topic=topic,
+                key=key.encode('utf-8'),
+                value=json.dumps(value).encode('utf-8'),
+                callback=self._delivery_callback
+            )
+
+            self.producer.poll(0)
 
         except Exception:
             logger.exception(
