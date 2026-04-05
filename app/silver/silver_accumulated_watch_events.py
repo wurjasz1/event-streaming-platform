@@ -73,7 +73,7 @@ def get_batch_date_range(df, lookback_days=1):
         ).collect()[0]
     )
 
-    if row["min_date"] is None:
+    if row["min_date"] is None or row["max_date"] is None:
         return None, None
 
     return (
@@ -150,6 +150,26 @@ def accumulate_state(df):
     result_df = result_df.withColumn(
         "control_event_history",
         F.collect_list("control_event").over(window)
+    )
+
+    #remove null entries from history
+    result_df = result_df.withColumn(
+        "control_event_history",
+        F.expr("filter(control_event_history, x -> x is not null)")
+    )
+
+    #sorting history by event_time
+    result_df = result_df.withColumn(
+        "control_event_history",
+        F.expr(
+            """array_sort(control_event_history, (left,right) ->
+                case
+                    when left.event_time<right.event_time then -1
+                    when left.event_time>right.event_time then 1
+                    else 0
+                end
+            )
+        """)
     )
     result_df = result_df.drop("control_event")
 
