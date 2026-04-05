@@ -1,10 +1,17 @@
 import time
+import logging
 
 from app.generator.event_generator import EventGenerator
 from app.generator.event_duplicator import EventDuplicator
 from app.generator.event_corruptor import EventCorruptor
 from app.generator.delay_buffer import DelayBuffer
 from app.kafka_client.producer import KafkaEventProducer
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s | %(levelname)s - %(name)s - %(message)s"
+)
+logger = logging.getLogger(__name__)
 
 TOPIC = "watch-events"
 
@@ -14,28 +21,30 @@ def main():
     duplicator = EventDuplicator()
     corruptor = EventCorruptor()
     delay_buffer = DelayBuffer()
-    producer = KafkaEventProducer()
 
     try:
-        while True:
-            event = generator.generate_events()
-            events_after_duplication = duplicator.process(event)
+        with KafkaEventProducer("localhost:9092") as producer:
+            while True:
+                event = generator.generate_events()
+                events_after_duplication = duplicator.process(event)
 
-            for item in events_after_duplication:
-                payload=item.convert_to_dict()
-                payload = corruptor.corrupt(payload)
-                delayed_events = delay_buffer.process(payload)
+                for item in events_after_duplication:
+                    payload=item.convert_to_dict()
+                    payload = corruptor.corrupt(payload)
+                    delayed_events = delay_buffer.process(payload)
 
-                for e in delayed_events:
-                    key = e.get("user_id", "unknown")
-                    producer.send(TOPIC, key, e)
-                    print("Sent:", e)
+                    for e in delayed_events:
+                        key = e.get("user_id", "unknown")
+                        producer.send(TOPIC, key, e)
+                        logger.info("Sent event to producer buffer, key: %s, payload=%s",
+                                    key,
+                                    e
+                                    )
 
-            time.sleep(0.5)
+                time.sleep(0.5)
 
     except KeyboardInterrupt:
-        producer.flush()
-        producer.close()
+        logger.info("Application stopped by user")
 
 
 if __name__ == "__main__":
