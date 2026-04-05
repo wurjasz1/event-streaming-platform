@@ -1,4 +1,4 @@
-kafka-python
+confluent_kafka
 pytest
 ruff
 pyspark

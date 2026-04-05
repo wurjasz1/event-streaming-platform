@@ -4,6 +4,8 @@ from pyspark.sql import SparkSession, functions as F
 from pyspark.sql.window import Window
 from delta.tables import DeltaTable
 
+from app.config.event_types import PLAY, PAUSE, RESUME, COMPLETED, ABANDONED
+
 SOURCE_PATH = "data/silver/watch_events"
 TARGET_PATH = "data/silver/watch_events_accumulated"
 CHECKPOINT_PATH = "checkpoints/silver/watch_events_accumulated"
@@ -11,11 +13,8 @@ STATE_COLUMNS = [
         "device_type",
         "platform",
         "network_type",
-        "pause_reason",
-        "resume_reason",
         "completion_percent",
         "watch_duration_sec",
-        "abandoned_reason",
         "playback_position"
     ]
 
@@ -46,7 +45,8 @@ def deduplicate_batch(df):
     window = Window.partitionBy("event_id").orderBy(
             F.desc_nulls_last("event_time"),
             F.desc_nulls_last("event_version"),
-            F.desc_nulls_last("event_header_reemission")
+            F.desc_nulls_last("event_header_reemission"),
+            F.desc_nulls_last("ingest_ts")
     )
     return (
         df
@@ -73,7 +73,7 @@ def get_batch_date_range(df, lookback_days=1):
         ).collect()[0]
     )
 
-    if row["min_date"] is None:
+    if row["min_date"] is None or row["max_date"] is None:
         return None, None
 
     return (
@@ -113,13 +113,65 @@ def accumulate_state(df):
         )
         .rowsBetween(Window.unboundedPreceding, Window.currentRow)
     )
+    #state derived from event_type
+    state_event=(
+        F.when(F.col("event_type")== PLAY, F.lit("PLAYING"))
+        .when(F.col("event_type")== RESUME, F.lit("PLAYING"))
+        .when(F.col("event_type") == PAUSE, F.lit("PAUSED"))
+        .when(F.col("event_type") == ABANDONED, F.lit("ABANDONED"))
+        .when(F.col("event_type") == COMPLETED, F.lit("COMPLETED"))
+    )
 
-    result_df = df
+    result_df = df.withColumn(
+        "session_state",
+        F.last(state_event, ignorenulls=True).over(window)
+    )
+
     for col_name in STATE_COLUMNS:
         result_df = result_df.withColumn(
             f"current_{col_name}",
             F.last(F.col(col_name), True).over(window)
         )
+
+    #building one standarized control event
+    control_event=F.when(
+        F.col("event_type").isin(PAUSE, RESUME, ABANDONED), F.struct(
+            F.col("event_time").alias("event_time"),
+            F.col("event_type").alias("event_type"),
+            F.when(F.col("event_type")== PAUSE, F.col("pause_reason"))
+            .when(F.col("event_type")== RESUME, F.col("resume_reason"))
+            .when(F.col("event_type") == ABANDONED, F.col("abandoned_reason")).alias("reason")
+        )
+    )
+
+    result_df = result_df.withColumn("control_event",control_event)
+
+    #collecting control event history over session time
+    result_df = result_df.withColumn(
+        "control_event_history",
+        F.collect_list("control_event").over(window)
+    )
+
+    #remove null entries from history
+    result_df = result_df.withColumn(
+        "control_event_history",
+        F.expr("filter(control_event_history, x -> x is not null)")
+    )
+
+    #sorting history by event_time
+    result_df = result_df.withColumn(
+        "control_event_history",
+        F.expr(
+            """array_sort(control_event_history, (left,right) ->
+                case
+                    when left.event_time<right.event_time then -1
+                    when left.event_time>right.event_time then 1
+                    else 0
+                end
+            )
+        """)
+    )
+    result_df = result_df.drop("control_event")
 
     return result_df
 
