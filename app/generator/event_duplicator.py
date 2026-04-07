@@ -1,5 +1,5 @@
 import random
-from app.domain.watch_event import WatchEvent
+from app.contracts.watch_event_schema_v1 import WatchEventV1
 
 class EventDuplicator:
     def __init__(self,duplicate_prob=0.15,reemission_prob=0.10,correction_prob=0.05):
@@ -7,7 +7,7 @@ class EventDuplicator:
         self.reemission_prob=reemission_prob
         self.correction_prob=correction_prob
 
-    def process(self, event:WatchEvent) -> list[WatchEvent]:
+    def process(self, event:WatchEventV1) -> list[WatchEventV1]:
         output=[event]
 
         #duplicate
@@ -17,7 +17,7 @@ class EventDuplicator:
         #reemission
         if random.random()<self.reemission_prob:
             output.append(
-                WatchEvent(
+                WatchEventV1(
                     event_id=event.event_id,
                     event_type=event.event_type,
                     user_id= event.user_id,
@@ -36,7 +36,7 @@ class EventDuplicator:
             if corrected_postion is not None:
                 corrected_postion+=random.randint(1,30)
                 output.append(
-                    WatchEvent(
+                    WatchEventV1(
                         event_id=event.event_id,
                         event_type=event.event_type,
                         user_id=event.user_id,
