@@ -1,0 +1,86 @@
+{
+  "title": "watch_event",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema_name": {
+      "type": "string",
+      "const": "watch_event"
+    },
+    "schema_version": {
+      "type": "integer",
+      "const": 1
+    },
+    "event_id": {
+      "type": "string"
+    },
+    "event_type": {
+      "type": "string",
+      "enum": ["play", "pause", "resume", "completed", "abandoned"]
+    },
+    "user_id": {
+      "type": "string"
+    },
+    "session_id": {
+      "type": "string"
+    },
+    "content_id": {
+      "type": "string"
+    },
+    "event_time": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "event_version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "event_header_reemission": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "playback_position": {
+      "type": ["integer", "null"],
+      "minimum": 0
+    },
+    "device_type": {
+      "type": ["string", "null"]
+    },
+    "platform": {
+      "type": ["string", "null"]
+    },
+    "network_type": {
+      "type": ["string", "null"]
+    },
+    "pause_reason": {
+      "type": ["string", "null"]
+    },
+    "resume_reason": {
+      "type": ["string", "null"]
+    },
+    "completion_percent": {
+      "type": ["integer", "null"],
+      "minimum": 0,
+      "maximum": 100
+    },
+    "watch_duration_sec": {
+      "type": ["integer", "null"],
+      "minimum": 0
+    },
+    "abandoned_reason": {
+      "type": ["string", "null"]
+    }
+  },
+  "required": [
+    "schema_name",
+    "schema_version",
+    "event_id",
+    "event_type",
+    "user_id",
+    "session_id",
+    "content_id",
+    "event_time",
+    "event_version",
+    "event_header_reemission"
+  ]
+}
