@@ -17,5 +17,8 @@ checkpoints/
 #manual testing
 manual-testing/
 
+#ipynb checkpoints
+/.ipynb_checkpoints/
+
 #logs
 &.log
