@@ -16,36 +16,21 @@ class EventDuplicator:
 
         #reemission
         if random.random()<self.reemission_prob:
-            output.append(
-                WatchEventV1(
-                    event_id=event.event_id,
-                    event_type=event.event_type,
-                    user_id= event.user_id,
-                    session_id= event.session_id,
-                    content_id= event.content_id,
-                    event_time= event.event_time,
-                    event_version= event.event_version,
-                    event_header_reemission= event.event_header_reemission +1,
-                    playback_position= event.playback_position
-                )
-            )
+            base_data = event.model_dump()
+            base_data["event_header_reemission"] = event.event_header_reemission+1
+
+            output.append(WatchEventV1(**base_data))
 
         #version - playback correction
         if random.random()<self.correction_prob:
             corrected_postion=event.playback_position
             if corrected_postion is not None:
                 corrected_postion+=random.randint(1,30)
-                output.append(
-                    WatchEventV1(
-                        event_id=event.event_id,
-                        event_type=event.event_type,
-                        user_id=event.user_id,
-                        session_id=event.session_id,
-                        content_id=event.content_id,
-                        event_time=event.event_time,
-                        event_version=event.event_version + 1,
-                        event_header_reemission=0,
-                        playback_position=corrected_postion
-                    )
-                )
+
+                base_data = event.model_dump()
+                base_data["event_header_reemission"] = 0
+                base_data["event_version"] = event.event_version+1
+
+                output.append(WatchEventV1(**base_data))
+
         return output
