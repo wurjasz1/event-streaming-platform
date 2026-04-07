@@ -22,7 +22,7 @@ class KafkaEventProducer:
                 'bootstrap.servers': self.bootstrap_servers,
                 "client.id": "event-streaming-platform-producer",
                 "acks": "all",
-                "enable_idempotence": True,
+                "enable.idempotence": True,
                 "compression.type": "snappy",
                 "linger.ms": 5,
                 "batch.num.messages":1000
@@ -59,7 +59,7 @@ class KafkaEventProducer:
     def _delivery_callback(self,err,msg):
         if err is not None:
             logger.error(
-                "Delivery failed, topic=%s, key=%s, error=%s",
+                "❌ Delivery failed, topic=%s, key=%s, error=%s",
                 msg.topic() if msg else None,
                 msg.key().decode("utf-8",errors="ignore") if msg and msg.key() else None,
                 err
