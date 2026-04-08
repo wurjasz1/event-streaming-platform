@@ -5,7 +5,7 @@ from datetime import timedelta
 from app.config.device_config import DEVICE_CONFIG
 from app.config.event_types import PLAY, PAUSE, RESUME, COMPLETED, ABANDONED
 from app.domain.user_state import UserState
-from app.domain.watch_event import WatchEvent
+from app.contracts.watch_event_schema_v1 import WatchEventV1
 
 
 class EventGenerator:
@@ -22,7 +22,7 @@ class EventGenerator:
             for user_id in self.users
         }
 
-    def generate_events(self) -> WatchEvent:
+    def generate_events(self) -> WatchEventV1:
         #event flow based on current user state.
         user_id = random.choice(self.users)
         user_state = self.user_states[user_id]
@@ -38,7 +38,7 @@ class EventGenerator:
 
         raise ValueError(f"Unknown state for user {user_id}: {user_state.state}")
 
-    def _generate_play_event(self, user_state: UserState) -> WatchEvent:
+    def _generate_play_event(self, user_state: UserState) -> WatchEventV1:
 
         #user starts watching - creates a new session. This is the only place where session_id is generated.
         session_id = str(uuid.uuid4())
@@ -70,7 +70,7 @@ class EventGenerator:
         user_state.platform = platform
         user_state.network_type = network_type
 
-        return WatchEvent(
+        return WatchEventV1(
             event_id=str(uuid.uuid4()),
             event_type=PLAY,
             user_id=user_state.user_id,
@@ -92,7 +92,7 @@ class EventGenerator:
             abandoned_reason=None,
         )
 
-    def _generate_playing_event(self, user_state: UserState) -> WatchEvent:
+    def _generate_playing_event(self, user_state: UserState) -> WatchEventV1:
 
         #User is actively watching - can pause, complete, or abandon.
         event_type = random.choices(
@@ -149,7 +149,7 @@ class EventGenerator:
             user_state.platform = None
             user_state.network_type = None
 
-        return WatchEvent(
+        return WatchEventV1(
             event_id=str(uuid.uuid4()),
             event_type=event_type,
             user_id=user_state.user_id,
@@ -171,7 +171,7 @@ class EventGenerator:
             abandoned_reason=abandoned_reason,
         )
 
-    def _generate_paused_event(self, user_state: UserState) -> WatchEvent:
+    def _generate_paused_event(self, user_state: UserState) -> WatchEventV1:
 
         #User paused - can either resume or abandon session.
 
@@ -224,7 +224,7 @@ class EventGenerator:
             user_state.platform = None
             user_state.network_type = None
 
-        return WatchEvent(
+        return WatchEventV1(
             event_id=str(uuid.uuid4()),
             event_type=event_type,
             user_id=user_state.user_id,

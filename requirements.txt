@@ -3,3 +3,6 @@ pytest
 ruff
 pyspark
 delta-spark==3.1.0
+requests
+jsonschema
+prometheus_client
