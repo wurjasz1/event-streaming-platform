@@ -68,7 +68,7 @@ def main():
                     delayed_events = delay_buffer.process(payload)
 
                     for e in delayed_events:
-                        key = e.get("user_id", "unknown")
+                        key = e.get("session_id", "unknown")
                         producer.send(TOPIC, key, e)
                         logger.info(
                             "Sent event to producer buffer, key: %s, event_id=%s, event_type=%s",

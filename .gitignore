@@ -23,3 +23,10 @@ manual-testing/
 #logs
 &.log
 /spool.jsonl
+/app/testing/
+
+venv/
+
+.codex/
+
+.tests/
